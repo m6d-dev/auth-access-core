@@ -57,7 +57,7 @@ class AccessRolesRules(models.Model):
         unique_together = ("role", "element")
 
     def __str__(self):
-        return f"{self.role} → {self.element} : {bin(self.byte_flag)}"
+        return f"{self.role} -> {self.element} : {bin(self.byte_flag)}"
 
     # === Константы битов для CRUD ===
     READ_OWN = 0b0000001

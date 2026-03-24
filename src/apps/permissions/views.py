@@ -6,6 +6,8 @@ from src.config.permission import IsAdmin
 from rest_framework import status
 from src.apps.permissions.services import access_role_service
 from drf_spectacular.utils import extend_schema, OpenApiResponse
+from src.apps.permissions.models import Roles
+from src.apps.permissions.serializer import RoleSerializer
 
 
 class UpdateAccessRuleAPIView(APIView):
@@ -32,3 +34,66 @@ class UpdateAccessRuleAPIView(APIView):
         )
 
         return Response(rule.model_dump(), status=status.HTTP_201_CREATED)
+
+
+class RolesAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    @extend_schema(
+        responses={
+            status.HTTP_200_OK: RoleSerializer(many=True),
+        },
+        description="Получить список всех ролей (только для администратора)",
+    )
+    def get(self, request):
+        roles = Roles.objects.all()
+        serializer = RoleSerializer(roles, many=True)
+        return Response(serializer.data)
+
+    @extend_schema(
+        request=RoleSerializer,
+        responses={
+            status.HTTP_201_CREATED: RoleSerializer,
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(description="Invalid data"),
+        },
+        description="Создать новую роль (только для администратора)",
+    )
+    def post(self, request):
+        serializer = RoleSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class RoleDetailAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def get_object(self, pk):
+        return Roles.objects.get(pk=pk)
+
+    @extend_schema(
+        request=RoleSerializer,
+        responses={
+            status.HTTP_200_OK: RoleSerializer,
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(description="Invalid data"),
+        },
+        description="Частично обновить роль",
+    )
+    def patch(self, request, pk):
+        role = self.get_object(pk)
+        serializer = RoleSerializer(role, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    @extend_schema(
+        responses={
+            status.HTTP_204_NO_CONTENT: OpenApiResponse(description="Role deleted"),
+            status.HTTP_404_NOT_FOUND: OpenApiResponse(description="Role not found"),
+        },
+        description="Удалить роль",
+    )
+    def delete(self, request, pk):
+        role = self.get_object(pk)
+        role.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

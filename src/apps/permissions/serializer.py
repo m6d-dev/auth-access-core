@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from src.apps.permissions.models import Roles
+from src.apps.permissions.models import BussinessElement, Roles
 
 
 class CreateAccessRuleSerializer(serializers.Serializer):
@@ -17,3 +17,9 @@ class CreateAccessRuleSerializer(serializers.Serializer):
         if not BussinessElement.objects.filter(id=value).exists():
             raise serializers.ValidationError("Business element не существует")
         return value
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Roles
+        fields = ["id", "kind", "created_at", "updated_at"]

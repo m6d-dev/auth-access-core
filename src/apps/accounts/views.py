@@ -137,3 +137,11 @@ class UsersAPIView(APIView):
     def get(self, request):
         users = user_service.get_all_users()
         return Response([u.model_dump() for u in users])
+
+
+class MeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = user_service.get_by_id(id=request.user.id)
+        return Response(user.model_dump())

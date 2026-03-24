@@ -2,6 +2,7 @@ from django.urls import path
 from .views import (
     DeactivateUserAPIView,
     LoginAPIView,
+    MeAPIView,
     RegisterAPIView,
     RegisterAdminAPIView,
     UpdateUserAPIView,
@@ -17,4 +18,5 @@ urlpatterns = [
     path("logout/", UserLogoutAPIView.as_view(), name="logout"),
     path("register/admin/", RegisterAdminAPIView.as_view(), name="register-admin"),
     path("users/", UsersAPIView.as_view(), name="users"),
+    path("users/me", MeAPIView.as_view(), name="me"),
 ]

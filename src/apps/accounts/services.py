@@ -28,16 +28,21 @@ class UserService(AbstractService[User]):
             email=instance.email,
         )
 
-    def get_by_id(self, id: int) -> Optional[UserDataDTO]:
+    def get_by_id(self, id: int) -> Optional[UserDetailedDTO]:
         instance = self._repository.filter(id=id).first()
         if not instance:
             return
 
-        return UserDataDTO(
+        return UserDetailedDTO(
             id=instance.id,
             first_name=instance.first_name,
             last_name=instance.last_name,
             email=instance.email,
+            role=(
+                RoleDataDTO(id=instance.role.id, kind=instance.role.kind)
+                if instance.role
+                else None
+            ),
         )
 
     def get_all_users(self) -> List[UserDetailedDTO]:
